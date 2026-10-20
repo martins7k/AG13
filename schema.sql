@@ -65,3 +65,7 @@ CREATE POLICY "Acesso completo emprestimos anon" ON public.emprestimos
 
 CREATE POLICY "Acesso completo amortizacoes anon" ON public.amortizacoes
     FOR ALL USING (true) WITH CHECK (true);
+
+-- HABILITA WEBSOCKETS TEMPO REAL (SUPABASE REALTIME)
+ALTER PUBLICATION supabase_realtime ADD TABLE public.clientes, public.emprestimos, public.amortizacoes;
+

@@ -12,6 +12,7 @@ import {
   cadastrarAmortizacao,
   apagarAmortizacao,
   estaUsandoNuvem,
+  inscreverTempoReal,
 } from '../lib/dataService';
 import {
   getPIN,
@@ -27,9 +28,9 @@ import { NewLoanModal } from '../components/NewLoanModal';
 import { PINScreen } from '../components/PINScreen';
 
 export default function Home() {
-  // Estado de Autenticação / PIN
+  // Estado de Autenticação / PIN (Atualizado para 251077)
   const [desbloqueado, setDesbloqueado] = useState(false);
-  const [savedPin, setSavedPin] = useState('1234');
+  const [savedPin, setSavedPin] = useState('251077');
   const [isCloud, setIsCloud] = useState(false);
 
   // Estado dos Dados
@@ -56,6 +57,30 @@ export default function Home() {
 
   useEffect(() => {
     carregarDados();
+
+    // 1. Inscrição em WebSockets (Supabase Realtime)
+    const desinscreverWS = inscreverTempoReal(() => {
+      carregarDados();
+    });
+
+    // 2. Atualização imediata ao focar na aba ou desbloquear a tela do celular
+    const handleFoco = () => {
+      carregarDados();
+    };
+    window.addEventListener('focus', handleFoco);
+    document.addEventListener('visibilitychange', handleFoco);
+
+    // 3. Heartbeat em segundo plano (a cada 4 segundos) para sincronização perfeita sem F5
+    const timer = setInterval(() => {
+      carregarDados();
+    }, 4000);
+
+    return () => {
+      desinscreverWS();
+      window.removeEventListener('focus', handleFoco);
+      document.removeEventListener('visibilitychange', handleFoco);
+      clearInterval(timer);
+    };
   }, []);
 
   // Recalcula os 5 valores para todos os empréstimos

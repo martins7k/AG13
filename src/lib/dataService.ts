@@ -220,3 +220,42 @@ export async function apagarAmortizacao(id: string): Promise<void> {
 
   localStore.excluirAmortizacao(id);
 }
+
+/**
+ * Assina atualizações em tempo real via WebSockets do Supabase.
+ * Notifica instantaneamente quando qualquer inserção, alteração ou exclusão ocorrer.
+ */
+export function inscreverTempoReal(aoAtualizar: () => void): () => void {
+  if (!isSupabaseConfigured() || !supabase) {
+    return () => {};
+  }
+
+  const canal = supabase
+    .channel('silvio-financeiro-realtime')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'clientes' },
+      () => {
+        aoAtualizar();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'emprestimos' },
+      () => {
+        aoAtualizar();
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'amortizacoes' },
+      () => {
+        aoAtualizar();
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase?.removeChannel(canal);
+  };
+}

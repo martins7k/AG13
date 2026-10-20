@@ -110,7 +110,12 @@ export function excluirAmortizacao(id: string): void {
 
 // ================= CONTROLE DE PIN =================
 export function getPIN(): string {
-  return lerLocal<string>(STORAGE_KEYS.PIN, '1234'); // PIN padrão 1234 para facilidade
+  const pin = lerLocal<string>(STORAGE_KEYS.PIN, '251077');
+  if (pin === '1234') {
+    salvarPIN('251077');
+    return '251077';
+  }
+  return pin;
 }
 
 export function salvarPIN(novoPin: string): void {

@@ -13,13 +13,13 @@ export function PINScreen({ onUnlock, savedPIN }: PINScreenProps) {
   const [erro, setErro] = useState(false);
 
   const handleNumero = (num: string) => {
-    if (pin.length < 4) {
+    if (pin.length < 6) {
       const novoPin = pin + num;
       setPin(novoPin);
       setErro(false);
 
-      if (novoPin.length === 4) {
-        if (novoPin === savedPIN || novoPin === '1234') {
+      if (novoPin.length === 6) {
+        if (novoPin === savedPIN || novoPin === '251077') {
           setTimeout(() => {
             onUnlock();
           }, 150);
@@ -49,13 +49,13 @@ export function PINScreen({ onUnlock, savedPIN }: PINScreenProps) {
         <p className="text-sm text-slate-400 mt-1">Acesso do Silvio</p>
       </div>
 
-      {/* Indicadores de PIN */}
+      {/* Indicadores de PIN (6 Dígitos) */}
       <div className="flex flex-col items-center">
-        <div className="flex gap-4 mb-3">
-          {[0, 1, 2, 3].map((idx) => (
+        <div className="flex gap-3 mb-3">
+          {[0, 1, 2, 3, 4, 5].map((idx) => (
             <div
               key={idx}
-              className={`w-4 h-4 rounded-full transition-all duration-200 ${
+              className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
                 pin.length > idx
                   ? erro
                     ? 'bg-rose-500 scale-125'
@@ -66,7 +66,7 @@ export function PINScreen({ onUnlock, savedPIN }: PINScreenProps) {
           ))}
         </div>
         <p className={`text-xs h-5 ${erro ? 'text-rose-400 font-medium' : 'text-slate-500'}`}>
-          {erro ? 'PIN incorreto. Tente novamente.' : 'Digite seu PIN de 4 dígitos'}
+          {erro ? 'PIN incorreto. Tente novamente.' : 'Digite seu PIN de 6 dígitos'}
         </p>
       </div>
 
