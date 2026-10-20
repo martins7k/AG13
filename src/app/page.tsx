@@ -109,29 +109,37 @@ export default function Home() {
     dataVencimento: string;
     observacao?: string;
   }) => {
-    let finalClienteId = dados.clienteId;
+    try {
+      let finalClienteId = dados.clienteId;
 
-    if (!finalClienteId && dados.novoCliente) {
-      const novoCli = await cadastrarCliente(dados.novoCliente);
-      finalClienteId = novoCli.id;
+      if (!finalClienteId && dados.novoCliente) {
+        const novoCli = await cadastrarCliente(dados.novoCliente);
+        finalClienteId = novoCli.id;
+      }
+
+      if (!finalClienteId) {
+        alert('Selecione ou informe um cliente.');
+        return;
+      }
+
+      const novoEmp = await cadastrarEmprestimo({
+        clienteId: finalClienteId,
+        valorOriginal: dados.valorOriginal,
+        taxaMensal: dados.taxaMensal,
+        dataInicio: dados.dataInicio,
+        dataVencimento: dados.dataVencimento,
+        status: 'Ativo',
+        observacao: dados.observacao,
+      });
+
+      await carregarDados();
+      setModalNovoEmprestimoAberto(false);
+      // Abre direto na ficha do novo empréstimo
+      setEmprestimoSelecionadoId(novoEmp.id);
+    } catch (err: any) {
+      console.error('Erro ao cadastrar empréstimo:', err);
+      alert('Erro ao cadastrar empréstimo: ' + (err.message || 'Verifique sua conexão.'));
     }
-
-    if (!finalClienteId) return;
-
-    const novoEmp = await cadastrarEmprestimo({
-      clienteId: finalClienteId,
-      valorOriginal: dados.valorOriginal,
-      taxaMensal: dados.taxaMensal,
-      dataInicio: dados.dataInicio,
-      dataVencimento: dados.dataVencimento,
-      status: 'Ativo',
-      observacao: dados.observacao,
-    });
-
-    await carregarDados();
-    setModalNovoEmprestimoAberto(false);
-    // Abre direto na ficha do novo empréstimo
-    setEmprestimoSelecionadoId(novoEmp.id);
   };
 
   const handleSalvarAmortizacao = async (dados: {

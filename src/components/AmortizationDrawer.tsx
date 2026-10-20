@@ -26,11 +26,12 @@ export function AmortizationDrawer({
   const [dataPagamento, setDataPagamento] = useState(getHojeString());
   const [formaPagamento, setFormaPagamento] = useState('PIX');
   const [observacao, setObservacao] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   const valorNum = parseFloat(valorStr.replace(',', '.')) || 0;
   const novoSaldoPrevisto = Math.max(0, saldoAtual - valorNum);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (valorNum <= 0) {
       alert('Informe um valor de amortização válido maior que zero.');
@@ -41,12 +42,17 @@ export function AmortizationDrawer({
       return;
     }
 
-    onSalvar({
-      valor: valorNum,
-      dataPagamento,
-      formaPagamento,
-      observacao,
-    });
+    setSalvando(true);
+    try {
+      await onSalvar({
+        valor: valorNum,
+        dataPagamento,
+        formaPagamento,
+        observacao,
+      });
+    } finally {
+      setSalvando(false);
+    }
   };
 
   return (
@@ -168,10 +174,13 @@ export function AmortizationDrawer({
           {/* Botão de Salvar */}
           <button
             type="submit"
-            className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-bold rounded-2xl shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 transition-all mt-2"
+            disabled={salvando}
+            className="w-full h-14 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-60 text-slate-950 font-bold rounded-2xl shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 transition-all mt-2 cursor-pointer disabled:cursor-not-allowed"
           >
             <Check className="w-5 h-5 stroke-[2.5]" />
-            <span className="text-sm tracking-wide">CONFIRMAR AMORTIZAÇÃO</span>
+            <span className="text-sm tracking-wide">
+              {salvando ? 'SALVANDO...' : 'CONFIRMAR AMORTIZAÇÃO'}
+            </span>
           </button>
         </form>
       </div>

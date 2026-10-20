@@ -118,7 +118,7 @@ export async function cadastrarEmprestimo(
         valor_original: emprestimo.valorOriginal,
         taxa_mensal: emprestimo.taxaMensal,
         data_inicio: emprestimo.dataInicio,
-        dataVencimento: emprestimo.dataVencimento,
+        data_vencimento: emprestimo.dataVencimento,
         status: emprestimo.status,
         observacao: emprestimo.observacao,
       })

@@ -54,13 +54,14 @@ export function NewLoanModal({
 
   const [dataVencimento, setDataVencimento] = useState(formatStr(data30dias));
   const [observacao, setObservacao] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   const valorNum = parseFloat(valorStr.replace(',', '.')) || 0;
   const taxaNum = parseFloat(taxaStr.replace(',', '.')) || 0;
   const juroPrevisto = valorNum * (taxaNum / 100);
   const totalPrevisto = valorNum + juroPrevisto;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (modoNovoCliente && !nomeCliente.trim()) {
@@ -80,21 +81,26 @@ export function NewLoanModal({
       return;
     }
 
-    onCriar({
-      clienteId: modoNovoCliente ? undefined : clienteSelecionadoId,
-      novoCliente: modoNovoCliente
-        ? {
-            nome: nomeCliente.trim(),
-            apelido: apelidoCliente.trim(),
-            telefone: telefoneCliente.trim(),
-          }
-        : undefined,
-      valorOriginal: valorNum,
-      taxaMensal: taxaNum,
-      dataInicio,
-      dataVencimento,
-      observacao,
-    });
+    setSalvando(true);
+    try {
+      await onCriar({
+        clienteId: modoNovoCliente ? undefined : clienteSelecionadoId,
+        novoCliente: modoNovoCliente
+          ? {
+              nome: nomeCliente.trim(),
+              apelido: apelidoCliente.trim(),
+              telefone: telefoneCliente.trim(),
+            }
+          : undefined,
+        valorOriginal: valorNum,
+        taxaMensal: taxaNum,
+        dataInicio,
+        dataVencimento,
+        observacao,
+      });
+    } finally {
+      setSalvando(false);
+    }
   };
 
   return (
@@ -283,10 +289,13 @@ export function NewLoanModal({
           {/* BOTÃO SUBMIT */}
           <button
             type="submit"
-            className="w-full h-13 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-bold rounded-2xl shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 transition-all"
+            disabled={salvando}
+            className="w-full h-13 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] disabled:opacity-60 text-slate-950 font-bold rounded-2xl shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             <Check className="w-5 h-5 stroke-[2.5]" />
-            <span className="text-sm tracking-wide">CADASTRAR EMPRÉSTIMO</span>
+            <span className="text-sm tracking-wide">
+              {salvando ? 'CADASTRANDO...' : 'CADASTRAR EMPRÉSTIMO'}
+            </span>
           </button>
         </form>
       </div>
